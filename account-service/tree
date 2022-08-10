@@ -1,0 +1,25 @@
+.
+├── go.mod
+├── go.sum
+├── internal
+│   ├── api
+|   |   ├── cmd
+|   |   |   └── main.go
+│   │   └── router
+│   │       └── router.go
+│   └── pkg
+│       ├── domain
+│       │   ├── domain_model
+│       │       ├── dto
+│       │       └── entity
+│       ├── handler
+│       └── repository
+├── pkg
+│   ├── infrastructure
+│   |   ├── db
+│   └── shared
+│       ├── middleware
+│       ├── utils
+│       └── validator
+└── tree.txt
+

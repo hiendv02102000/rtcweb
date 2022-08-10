@@ -1,0 +1,16 @@
+{
+    "folders": [
+        {
+            "path": "account-service"
+        },
+        {
+            "path": "chat-service"
+        },
+        {
+            "path": "project"
+        },
+        {
+            "path": "stream-service"
+        }
+    ]
+}
