@@ -1,19 +1,13 @@
 package handler
 
 import (
+	"stream-service/dto"
 	"sync"
-
-	guuid "github.com/google/uuid"
 )
 
 type Room struct {
-	UserID  int
-	RoomID  string
-	Title   string
-	Chanels map[string]chan MessageVideo
+	Chanels map[string]chan dto.MessageChat
 }
-
-type MessageVideo map[string]interface{}
 
 type RoomMap struct {
 	Map   map[string]Room
@@ -31,17 +25,10 @@ func (r *RoomMap) Get(roomID string) (Room, bool) {
 	return room, ok
 }
 
-func (r *RoomMap) CreateRoom(userID int, Title string) Room {
-
-	roomID := guuid.New().String()
-
+func (r *RoomMap) CreateRoom(roomID string) Room {
 	room := Room{
-		RoomID:  roomID,
-		UserID:  userID,
-		Title:   Title,
-		Chanels: make(map[string]chan MessageVideo),
+		Chanels: make(map[string]chan dto.MessageChat),
 	}
-
 	r.Mutex.Lock()
 	defer r.Mutex.Unlock()
 	r.Map[roomID] = room
@@ -52,12 +39,18 @@ func (r *RoomMap) InsertIntoRoom(roomID string, chanelId string) {
 	r.Mutex.Lock()
 	defer r.Mutex.Unlock()
 	room := r.Map[roomID]
-	room.Chanels[chanelId] = make(chan MessageVideo)
+	room.Chanels[chanelId] = make(chan dto.MessageChat)
 }
 
 func (r *RoomMap) DeleteRoom(roomID string) {
 	r.Mutex.Lock()
 	defer r.Mutex.Unlock()
-
 	delete(r.Map, roomID)
+}
+
+func (r *RoomMap) LeaveRoom(roomID string, chanelId string) {
+	r.Mutex.Lock()
+	defer r.Mutex.Unlock()
+	room := r.Map[roomID]
+	delete(room.Chanels, chanelId)
 }

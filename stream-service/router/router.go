@@ -2,6 +2,7 @@ package router
 
 import (
 	"stream-service/handler"
+	"stream-service/pkg/share/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,11 +13,13 @@ type Router struct {
 
 func (r *Router) Routes() {
 
-	webSocket := r.Engine.Group("/ws")
+	wsChat := r.Engine.Group("/chat_service")
 	{
-		webSocket.POST("/create_room", handler.CreateRoom)
-		webSocket.GET("/join_room/:uuid", handler.JoinRoom)
-	}
+		wsChat.Use(middleware.AuthMiddleware(), middleware.AuthUserBanned())
+		wsChat.POST("/send_message", handler.SendMessage)
+		wsChat.POST("/join_room", handler.JoinRoomChat)
+		wsChat.GET("/get_message", handler.GetMessage)
+	} //
 
 }
 func NewRouter() Router {
