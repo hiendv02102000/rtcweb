@@ -39,6 +39,7 @@ func (r *Router) Routes() {
 				accountAPI.DELETE("/unban_user", hUserBaned.UnBanUser)
 				accountAPI.GET("/get_userbanned_list", hUserBaned.GetUserBannedList)
 				accountAPI.GET("/get_users_in_room", hUserCus.GetUsersInRoom)
+				accountAPI.GET("/check_banned_user", hUserBaned.CheckBanned)
 			}
 
 		}

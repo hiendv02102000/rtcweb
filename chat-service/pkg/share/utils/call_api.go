@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+const HOST_ACCOUNT_SERVICE = "http://localhost:8080"
+
 //"GET" POST
 func SendRequest(method string, url string, token string, data interface{}) ([]byte, error) {
 	jsonData, err := json.Marshal(data)
@@ -17,13 +19,12 @@ func SendRequest(method string, url string, token string, data interface{}) ([]b
 	if err != nil {
 		return nil, err
 	}
-
-	req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
 	if token != "" {
 		bearer := "Bearer " + token
 		req.Header.Add("Authorization", bearer)
 	}
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {

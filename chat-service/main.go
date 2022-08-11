@@ -1,13 +1,8 @@
 package main
 
-import (
-	"encoding/json"
-	"fmt"
-)
+import "chat-service/router"
 
 func main() {
-	// b, err := utils.SendRequest("GET", "", "", nil)
-	// fmt.Println(string(b))
-	jsonData, err := json.Marshal(nil)
-	fmt.Println(string(jsonData), err)
+	r := router.NewRouter()
+	r.Engine.Run(":8081")
 }

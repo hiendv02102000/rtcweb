@@ -3,6 +3,7 @@ package usecase
 import (
 	"api/internal/pkg/domain/domain_model/entity"
 	"api/internal/pkg/domain/repository"
+	"errors"
 
 	"api/pkg/infrastucture/db"
 )
@@ -11,6 +12,7 @@ type UserBannedUsecase interface {
 	BanUser(streamer entity.Users, userId int) error
 	UnBanUser(streamer entity.Users, userId int) error
 	GetUserBannedList(streamer entity.Users) ([]entity.Users, error)
+	CheckBanned(roomId string, userId int) (bool, error)
 }
 
 type userBannedUsecase struct {
@@ -65,6 +67,26 @@ func (u *userBannedUsecase) GetUserBannedList(streamer entity.Users) ([]entity.U
 	}
 
 	return listUser, nil
+}
+func (u *userBannedUsecase) CheckBanned(roomId string, userId int) (bool, error) {
+	roomRepo := repository.NewRoomRepository(u.userRepo.DB)
+	room, err := roomRepo.FirstRoom(entity.Room{
+		ID: roomId,
+	})
+	if err != nil {
+		return true, err
+	}
+	if room.ID == "" {
+		return true, errors.New("room not exist")
+	}
+	userBanned, err := u.userRepo.FirstUserBanned(entity.UserBanned{
+		UserID:     userId,
+		StreamerID: room.StreamerID,
+	})
+	if userBanned.ID == 0 {
+		return true, err
+	}
+	return false, err
 }
 func NewuserBannedUsecase(db db.Database) *userBannedUsecase {
 	repo := repository.NewUserBannedRepository(db)

@@ -98,3 +98,30 @@ func (h *UserBannedHandler) GetUserBannedList(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, data)
 }
+func (h *UserBannedHandler) CheckBanned(c *gin.Context) {
+	user := middleware.GetUserFromContext(c)
+	roomId := c.Query("room_id")
+
+	if roomId == "" {
+		data := dto.BaseResponse{
+			Status: http.StatusBadRequest,
+			Error:  "room id is required",
+		}
+		c.JSON(http.StatusBadRequest, data)
+		return
+	}
+	res, err := h.userBannedUsecase.CheckBanned(roomId, user.ID)
+	if err != nil {
+		data := dto.BaseResponse{
+			Status: http.StatusBadRequest,
+			Error:  err.Error(),
+		}
+		c.JSON(http.StatusBadRequest, data)
+		return
+	}
+	data := dto.BaseResponse{
+		Status: http.StatusOK,
+		Result: res,
+	}
+	c.JSON(http.StatusOK, data)
+}
