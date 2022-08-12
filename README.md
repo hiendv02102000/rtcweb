@@ -1,4 +1,4 @@
 # rtcweb
 ## Run project:
-    ###  -cd project
-    ###  -make first-launch
+      cd project
+      make first-launch
