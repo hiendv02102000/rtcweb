@@ -12,15 +12,14 @@ type Router struct {
 }
 
 func (r *Router) Routes() {
-
-	wsChat := r.Engine.Group("/chat_service")
+	handler.InitHandler()
+	wsChat := r.Engine.Group("/stream_service")
 	{
-		wsChat.Use(middleware.AuthMiddleware(), middleware.AuthUserBanned())
-		wsChat.POST("/send_message", handler.SendMessage)
-		wsChat.POST("/join_room", handler.JoinRoomChat)
-		wsChat.GET("/get_message", handler.GetMessage)
+		wsChat.POST("/start_stream", handler.StartStream)
+		wsChat.Use(middleware.AuthMiddleware())
+		wsChat.POST("/join_stream", handler.JoinStream)
 	} //
-
+	//
 }
 func NewRouter() Router {
 	var r Router

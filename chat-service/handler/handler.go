@@ -2,12 +2,15 @@ package handler
 
 import (
 	"chat-service/dto"
-	db "chat-service/pkg/infrastucture/database"
+
+	"chat-service/pkg/share/middleware"
 	"encoding/json"
 	"net/http"
 	"strconv"
 	"sync"
 	"time"
+
+	db "chat-service/pkg/infrastucture/database"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -18,7 +21,17 @@ import (
 var AllRooms RoomMap
 
 func SendMessage(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
 	roomId := c.Query("room_id")
+	ex, errR := db.RedisPool.Exists(c, "room-chat-"+roomId).Result()
+	if ex <= 0 || errR != redis.Nil {
+		data := dto.BaseResponse{
+			Status: http.StatusBadRequest,
+			Error:  "room is not exist",
+		}
+		c.JSON(http.StatusBadRequest, data)
+		return
+	}
 	msg := dto.MessageChat{}
 	err := c.ShouldBind(msg)
 	if err != nil {
@@ -33,10 +46,14 @@ func SendMessage(c *gin.Context) {
 		timeNow := time.Now()
 		msg.SendAt = &timeNow
 	}
-
+	if msg.Sender == "" {
+		user := middleware.GetUserFromContext(c)
+		msg.Sender = user.LastName + user.FirstName
+	}
 	score := msg.SendAt.Unix() / 10000
-	res, err := db.RedisPool.ZAdd(c, "room-chat-"+roomId, &redis.Z{Member: msg, Score: float64(score)}).Result()
-	if err != nil || res <= 0 {
+	jsonMsg, _ := json.Marshal(msg)
+	res, err := db.RedisPool.ZAdd(c, "room-chat-"+roomId, &redis.Z{Member: string(jsonMsg), Score: float64(score)}).Result()
+	if err != redis.Nil || res <= 0 {
 		data := dto.BaseResponse{
 			Status: http.StatusBadRequest,
 			Error:  "send message failure",
@@ -71,6 +88,7 @@ func SendMessage(c *gin.Context) {
 }
 
 func GetMessage(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
 	roomId := c.Query("room_id")
 	startS := c.Query("start")
 	sizeS := c.Query("size")
@@ -86,9 +104,17 @@ func GetMessage(c *gin.Context) {
 		return
 
 	}
-
+	ex, errR := db.RedisPool.Exists(c, "room-chat-"+roomId).Result()
+	if ex <= 0 || errR != redis.Nil {
+		data := dto.BaseResponse{
+			Status: http.StatusBadRequest,
+			Error:  "room is not exist",
+		}
+		c.JSON(http.StatusBadRequest, data)
+		return
+	}
 	res, err := db.RedisPool.ZRevRange(c, "room-chat-"+roomId, int64(start), int64(size+start)).Result()
-	if err != nil {
+	if err != redis.Nil {
 		data := dto.BaseResponse{
 			Status: http.StatusBadRequest,
 			Error:  err.Error(),
@@ -114,6 +140,15 @@ func GetMessage(c *gin.Context) {
 func JoinRoomChat(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	roomId := c.Query("room_id")
+	ex, errR := db.RedisPool.Exists(c, "room-chat-"+roomId).Result()
+	if ex <= 0 || errR != redis.Nil {
+		data := dto.BaseResponse{
+			Status: http.StatusBadRequest,
+			Error:  "room is not exist",
+		}
+		c.JSON(http.StatusBadRequest, data)
+		return
+	}
 	room, ok := AllRooms.Get(roomId)
 	if !ok {
 		room = AllRooms.CreateRoom(roomId)

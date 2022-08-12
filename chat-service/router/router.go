@@ -12,7 +12,7 @@ type Router struct {
 }
 
 func (r *Router) Routes() {
-
+	handler.AllRooms.Init()
 	wsChat := r.Engine.Group("/chat_service")
 	{
 		wsChat.Use(middleware.AuthMiddleware(), middleware.AuthUserBanned())

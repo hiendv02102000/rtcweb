@@ -49,8 +49,8 @@ func (r *Router) Routes() {
 			roomAPI.GET("/get_room_info", hRoom.GetRoomList)
 			roomAPI.Use(middleware.AuthRoomMiddleware(r.DB))
 			{
-				roomAPI.PUT("/start_room", hRoom.StartRoom)
-				roomAPI.PATCH("/end_room", hRoom.EndRoom)
+				roomAPI.POST("/start_room", hRoom.StartRoom)
+				roomAPI.POST("/end_room", hRoom.EndRoom)
 			}
 		}
 	}

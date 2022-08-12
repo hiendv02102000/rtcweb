@@ -1,12 +1,13 @@
 package handler
 
 import (
-	"stream-service/dto"
 	"sync"
+
+	"github.com/pion/webrtc/v2"
 )
 
 type Room struct {
-	Chanels map[string]chan dto.MessageChat
+	Chanels *webrtc.Track
 }
 
 type RoomMap struct {
@@ -27,7 +28,7 @@ func (r *RoomMap) Get(roomID string) (Room, bool) {
 
 func (r *RoomMap) CreateRoom(roomID string) Room {
 	room := Room{
-		Chanels: make(map[string]chan dto.MessageChat),
+		Chanels: new(webrtc.Track),
 	}
 	r.Mutex.Lock()
 	defer r.Mutex.Unlock()
@@ -35,22 +36,8 @@ func (r *RoomMap) CreateRoom(roomID string) Room {
 	return room
 }
 
-func (r *RoomMap) InsertIntoRoom(roomID string, chanelId string) {
-	r.Mutex.Lock()
-	defer r.Mutex.Unlock()
-	room := r.Map[roomID]
-	room.Chanels[chanelId] = make(chan dto.MessageChat)
-}
-
 func (r *RoomMap) DeleteRoom(roomID string) {
 	r.Mutex.Lock()
 	defer r.Mutex.Unlock()
 	delete(r.Map, roomID)
-}
-
-func (r *RoomMap) LeaveRoom(roomID string, chanelId string) {
-	r.Mutex.Lock()
-	defer r.Mutex.Unlock()
-	room := r.Map[roomID]
-	delete(room.Chanels, chanelId)
 }

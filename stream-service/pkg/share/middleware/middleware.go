@@ -56,43 +56,8 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
-func AuthUserBanned() gin.HandlerFunc {
+func AuthRoomMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		clientToken := c.GetHeader("Authorization")
-		extractedToken := strings.Split(clientToken, "Bearer ")
-		clientToken = strings.TrimSpace(extractedToken[1])
-		roomId := c.Query("room_id")
-		dataJ, err := utils.SendRequest("GET", utils.HOST_ACCOUNT_SERVICE+"/check_banned_user?room_id="+roomId, clientToken, nil)
-		if err != nil {
-			data := dto.BaseResponse{
-				Status: http.StatusUnauthorized,
-				Error:  err.Error(),
-			}
-			c.JSON(http.StatusUnauthorized, data)
-			c.Abort()
-			return
-		}
-		res := dto.BaseResponse{}
-		err = json.Unmarshal(dataJ, &res)
-		if err != nil {
-			data := dto.BaseResponse{
-				Status: http.StatusUnauthorized,
-				Error:  err.Error(),
-			}
-			c.JSON(http.StatusUnauthorized, data)
-			c.Abort()
-			return
-		}
-		if http.StatusOK != res.Status {
-			c.JSON(http.StatusUnauthorized, res)
-			c.Abort()
-			return
-		}
-		isBanned, ok := res.Result.(bool)
-		if isBanned || !ok {
-			c.JSON(http.StatusUnauthorized, res)
-			c.Abort()
-		}
-		c.Next()
+
 	}
 }
