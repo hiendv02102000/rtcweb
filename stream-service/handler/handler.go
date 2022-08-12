@@ -81,6 +81,7 @@ func StartStream(c *gin.Context) {
 	defer utils.SendRequest("POST", utils.HOST_ACCOUNT_SERVICE+"/api/room/end_room", clientToken+"-MyRoomKey", nil)
 	roomId := res.Result.(map[string]interface{})["id"].(string)
 	AllRooms.CreateRoom(roomId)
+	defer AllRooms.DeleteRoom(roomId)
 	var upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
@@ -165,6 +166,10 @@ func JoinStream(c *gin.Context) {
 		}
 
 		peerConnection, err := api.NewPeerConnection(peerConnectionConfig)
+		if err != nil {
+			fmt.Println(err)
+		}
+		err = peerConnection.SetRemoteDescription(session)
 		if err != nil {
 			fmt.Println(err)
 		}

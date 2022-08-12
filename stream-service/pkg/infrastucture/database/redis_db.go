@@ -8,8 +8,8 @@ var RedisPool = ConnectRedisPool(0)
 
 func ConnectRedisPool(db int) *goRedis.Client {
 	rdb := goRedis.NewClient(&goRedis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
+		Addr:     "redis-app:6379",
+		Password: "password",
 		DB:       db,
 		PoolSize: 1000,
 	})

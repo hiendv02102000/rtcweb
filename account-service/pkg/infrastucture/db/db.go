@@ -21,7 +21,7 @@ type Database struct {
 
 func NewDB() (Database, error) {
 	//dsn := "bac4178dc89368:292965a5@tcp(us-cdbr-east-05.cleardb.net)/heroku_560fb6556eff9f8?charset=utf8mb4&parseTime=True&loc=Local"
-	dsn := "root:123456@tcp(localhost:3307)/ecommere?charset=utf8&parseTime=True&loc=Local"
+	dsn := "hiendv:password@tcp(mysql:3306)/usersdb?charset=utf8&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	return Database{
 		DB: db,

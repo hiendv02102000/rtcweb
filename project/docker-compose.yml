@@ -34,6 +34,19 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-
-
+  mysql:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password 
+      MYSQL_DATABASE: usersdb
+      MYSQL_USER: hiendv
+      MYSQL_PASSWORD: password
+  redis-app:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass password
    
