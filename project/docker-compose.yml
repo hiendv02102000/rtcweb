@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+
+  account-service:
+    build:
+      context: ./../account-service
+      dockerfile: ./../account-service/account-service.dockerfile
+    restart: always
+    ports:
+      - "8000:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+      
+  chat-service:
+    build:
+      context: ./../chat-service
+      dockerfile: ./../chat-service/chat-service.dockerfile
+    restart: always
+    ports:
+      - "8001:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  stream-service:
+    build:
+      context: ./../stream-service
+      dockerfile: ./../stream-service/stream-service.dockerfile
+    restart: always
+    ports:
+      - "8002:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+
+
+   
