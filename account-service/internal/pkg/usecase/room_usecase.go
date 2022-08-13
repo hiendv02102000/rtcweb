@@ -62,8 +62,8 @@ func (u *roomUsecase) StartRoom(user entity.Users, req dto.StartRoomRequest) (en
 		}
 
 	}
-	db.RedisPool.SetNX(context.Background(), "room-user-"+room.ID, nil, 0)
-	db.RedisPool.SetNX(context.Background(), "room-chat-"+room.ID, nil, 0)
+	db.RedisPool.Set(context.Background(), "room-user-"+room.ID, nil, 0)
+	db.RedisPool.Set(context.Background(), "room-chat-"+room.ID, nil, 0)
 	return room, nil
 }
 func (u *roomUsecase) EndRoom(user entity.Users) (entity.Room, error) {
