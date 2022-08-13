@@ -102,21 +102,24 @@ func StartStream(c *gin.Context) {
 			return
 		}
 
-		peerConnection, err := api.NewPeerConnection(peerConnectionConfig)
-		if err != nil {
-			fmt.Println(err)
-		}
-		createTrack1(peerConnection, room)
-		answer, err := peerConnection.CreateAnswer(nil)
-		if err != nil {
-			fmt.Println(err)
-		}
+		answer, err := func(ss webrtc.SessionDescription) (webrtc.SessionDescription, error) {
+			peerConnection, err := api.NewPeerConnection(peerConnectionConfig)
+			if err != nil {
+				return webrtc.SessionDescription{}, err
+			}
+			createTrack(peerConnection, room)
+			answer, err := peerConnection.CreateAnswer(nil)
+			if err != nil {
+				return webrtc.SessionDescription{}, err
+			}
 
-		err = peerConnection.SetLocalDescription(answer)
-		if err != nil {
-			fmt.Println(err)
-		}
-		err = ws.WriteJSON(answer)
+			err = peerConnection.SetLocalDescription(answer)
+			if err != nil {
+				return webrtc.SessionDescription{}, err
+			}
+			return answer, nil
+		}(session)
+		err = ws.WriteJSON(dto.BaseResponse{Result: answer, Error: err})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, "write Error: "+err.Error())
 			ws.Close()
@@ -164,26 +167,28 @@ func JoinStream(c *gin.Context) {
 			ws.Close()
 			return
 		}
+		answer, err := func(ss webrtc.SessionDescription) (webrtc.SessionDescription, error) {
+			peerConnection, err := api.NewPeerConnection(peerConnectionConfig)
+			if err != nil {
+				return webrtc.SessionDescription{}, err
+			}
+			err = peerConnection.SetRemoteDescription(ss)
+			if err != nil {
+				return webrtc.SessionDescription{}, err
+			}
+			recieveTrack(peerConnection, room)
+			answer, err := peerConnection.CreateAnswer(nil)
+			if err != nil {
+				return webrtc.SessionDescription{}, err
+			}
 
-		peerConnection, err := api.NewPeerConnection(peerConnectionConfig)
-		if err != nil {
-			fmt.Println(err)
-		}
-		err = peerConnection.SetRemoteDescription(session)
-		if err != nil {
-			fmt.Println(err)
-		}
-		recieveTrack1(peerConnection, room)
-		answer, err := peerConnection.CreateAnswer(nil)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		err = peerConnection.SetLocalDescription(answer)
-		if err != nil {
-			fmt.Println(err)
-		}
-		err = ws.WriteJSON(answer)
+			err = peerConnection.SetLocalDescription(answer)
+			if err != nil {
+				return webrtc.SessionDescription{}, err
+			}
+			return answer, nil
+		}(session)
+		err = ws.WriteJSON(dto.BaseResponse{Result: answer, Error: err})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, "write Error: "+err.Error())
 			ws.Close()
@@ -191,7 +196,7 @@ func JoinStream(c *gin.Context) {
 		}
 	}
 }
-func createTrack1(peerConnection *webrtc.PeerConnection, room Room) {
+func createTrack(peerConnection *webrtc.PeerConnection, room Room) {
 
 	if _, err := peerConnection.AddTransceiver(webrtc.RTPCodecTypeVideo); err != nil {
 		log.Fatal(err)
@@ -230,7 +235,7 @@ func createTrack1(peerConnection *webrtc.PeerConnection, room Room) {
 	})
 
 }
-func recieveTrack1(peerConnection *webrtc.PeerConnection,
+func recieveTrack(peerConnection *webrtc.PeerConnection,
 	room Room) {
 	if room.Chanels == nil {
 		room.Chanels = new(webrtc.Track)

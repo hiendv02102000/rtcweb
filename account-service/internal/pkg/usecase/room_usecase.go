@@ -53,7 +53,7 @@ func (u *roomUsecase) StartRoom(user entity.Users, req dto.StartRoomRequest) (en
 	} else {
 		newRoom := room
 		newRoom.Title = req.Title
-		room.IsStream = true
+		newRoom.IsStream = true
 		room, err = u.roomRepo.UpdateRoom(newRoom, entity.Room{
 			ID: room.ID,
 		})
@@ -76,7 +76,7 @@ func (u *roomUsecase) EndRoom(user entity.Users) (entity.Room, error) {
 	}
 
 	newRoom := room
-	room.IsStream = false
+	newRoom.IsStream = false
 	room, err = u.roomRepo.UpdateRoom(newRoom, entity.Room{
 		ID: room.ID,
 	})

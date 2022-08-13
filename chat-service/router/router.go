@@ -17,7 +17,7 @@ func (r *Router) Routes() {
 	{
 		wsChat.Use(middleware.AuthMiddleware(), middleware.AuthUserBanned())
 		wsChat.POST("/send_message", handler.SendMessage)
-		wsChat.POST("/join_room", handler.JoinRoomChat)
+		wsChat.GET("/join_room", handler.JoinRoomChat)
 		wsChat.GET("/get_message", handler.GetMessage)
 	} //
 

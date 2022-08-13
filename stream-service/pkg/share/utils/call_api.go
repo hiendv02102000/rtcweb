@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-const HOST_ACCOUNT_SERVICE = "http://localhost:8000"
+const HOST_ACCOUNT_SERVICE = "http://account-service"
 
 //"GET" POST
 func SendRequest(method string, url string, token string, data interface{}) ([]byte, error) {
