@@ -17,7 +17,7 @@ func (r *Router) Routes() {
 	{
 		wsChat.POST("/start_stream", handler.StartStream)
 		wsChat.Use(middleware.AuthMiddleware())
-		wsChat.POST("/join_stream", handler.JoinStream)
+		wsChat.GET("/join_stream", handler.JoinStream)
 	} //
 	//
 }
