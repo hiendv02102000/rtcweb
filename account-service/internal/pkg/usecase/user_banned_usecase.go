@@ -83,7 +83,7 @@ func (u *userBannedUsecase) CheckBanned(roomId string, userId int) (bool, error)
 		UserID:     userId,
 		StreamerID: room.StreamerID,
 	})
-	if userBanned.ID == 0 {
+	if userBanned.ID != 0 {
 		return true, err
 	}
 	return false, err

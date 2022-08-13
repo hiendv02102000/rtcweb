@@ -5,6 +5,8 @@ import (
 	"api/pkg/infrastucture/db"
 	"api/pkg/share/middleware"
 	"api/pkg/share/validators"
+	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,6 +27,14 @@ func (r *Router) Routes() {
 	hRoom := handler.NewRoomHandler(r.DB)
 	api := r.Engine.Group("/api")
 	{
+		api.GET("/check_redis", func(c *gin.Context) {
+			fmt.Println(db.RedisPool.Ping(c).Result())
+			res, err := db.RedisPool.Ping(c).Result()
+			if err != nil {
+				c.JSON(http.StatusBadRequest, err)
+			}
+			c.JSON(http.StatusOK, res)
+		})
 		accountAPI := api.Group("/account")
 		{
 			accountAPI.POST("/login", hUserCus.Login)

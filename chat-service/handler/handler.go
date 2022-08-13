@@ -24,7 +24,7 @@ func SendMessage(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	roomId := c.Query("room_id")
 	ex, errR := db.RedisPool.Exists(c, "room-chat-"+roomId).Result()
-	if ex <= 0 || errR != redis.Nil {
+	if ex <= 0 || (errR != nil && errR != redis.Nil) {
 		data := dto.BaseResponse{
 			Status: http.StatusBadRequest,
 			Error:  "room is not exist",
@@ -105,7 +105,7 @@ func GetMessage(c *gin.Context) {
 
 	}
 	ex, errR := db.RedisPool.Exists(c, "room-chat-"+roomId).Result()
-	if ex <= 0 || errR != redis.Nil {
+	if ex <= 0 || (errR != nil && errR != redis.Nil) {
 		data := dto.BaseResponse{
 			Status: http.StatusBadRequest,
 			Error:  "room is not exist",
@@ -141,7 +141,7 @@ func JoinRoomChat(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	roomId := c.Query("room_id")
 	ex, errR := db.RedisPool.Exists(c, "room-chat-"+roomId).Result()
-	if ex <= 0 || errR != redis.Nil {
+	if ex <= 0 || (errR != nil && errR != redis.Nil) {
 		data := dto.BaseResponse{
 			Status: http.StatusBadRequest,
 			Error:  "room is not exist",

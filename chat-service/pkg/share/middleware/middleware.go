@@ -62,7 +62,7 @@ func AuthUserBanned() gin.HandlerFunc {
 		extractedToken := strings.Split(clientToken, "Bearer ")
 		clientToken = strings.TrimSpace(extractedToken[1])
 		roomId := c.Query("room_id")
-		dataJ, err := utils.SendRequest("GET", utils.HOST_ACCOUNT_SERVICE+"/check_banned_user?room_id="+roomId, clientToken, nil)
+		dataJ, err := utils.SendRequest("GET", utils.HOST_ACCOUNT_SERVICE+"/api/account/check_banned_user?room_id="+roomId, clientToken, nil)
 		if err != nil {
 			data := dto.BaseResponse{
 				Status: http.StatusUnauthorized,
@@ -90,6 +90,7 @@ func AuthUserBanned() gin.HandlerFunc {
 		}
 		isBanned, ok := res.Result.(bool)
 		if isBanned || !ok {
+			res.Status = http.StatusUnauthorized
 			c.JSON(http.StatusUnauthorized, res)
 			c.Abort()
 		}
