@@ -51,7 +51,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 		pro := dto.UserProfileResponse{}
-		utils.ConvertToPbject(res.Result, &pro)
+		utils.ConvertToObject(res.Result, &pro)
 		c.Set("user", pro)
 		c.Next()
 	}
